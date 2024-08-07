@@ -1,0 +1,35 @@
+{
+    "builders":
+    [
+      {
+        "type": "openstack",
+        "ssh_username": "root",
+        "image_name": "$NAME",
+        "source_image": "$IMAGE",
+        "flavor": "$FLAVOR",
+        "networks": [ "$NETWORK" ],
+        "instance_metadata": { $METADATA },
+        "user_data_file": "/etc/packer-utils/cloud-init.txt"
+
+      }
+    ],
+    "provisioners":
+    [
+      {
+        "type": "file",
+        "source": "/etc/packer-utils/templates/ubuntu-prepvm.sh",
+        "destination": "~/ubuntu-prepvm.sh"
+      },
+      {
+        "type": "shell",
+        "inline": ["bash ~/ubuntu-prepvm.sh" ]
+      }
+    ],
+    "post-processors":
+    [
+      {
+        "type": "shell-local",
+        "inline": ["source /etc/packer-utils/admin-auth.sh; rename-old-images.sh $NAME"]
+      }
+    ]
+  }
