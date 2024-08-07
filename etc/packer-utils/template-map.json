@@ -1,8 +1,51 @@
 {
-    "DEFAULT": 
-	[ 
+	"DEFAULT": [
 		"/etc/packer-utils/templates/unmanaged.json",
 		"/etc/packer-utils/templates/managed.json"
 	],
-    "test-sl7x-x86_64": [ "/etc/packer-utils/templates/managed.json" ]
+	"rocky-8-aq": [
+		"/etc/packer-utils/templates/managed.json"
+	],
+	"rocky-8-aqml": [
+		"/etc/packer-utils/templates/managed.json"
+	],
+	"rocky-8-nogui": [
+		"/etc/packer-utils/templates/managed.json"
+	],
+	"rocky-8-gui": [
+		"/etc/packer-utils/templates/managed.json"
+	],
+	"rocky-8-nogui-sssd": [
+		"/etc/packer-utils/templates/managed.json"
+	],
+	"rocky-8-gui-sssd": [
+		"/etc/packer-utils/templates/managed.json"
+	],
+	"rocky-9-aq": [
+		"/etc/packer-utils/templates/managed.json"
+	],
+	"rocky-9-nogui": [
+		"/etc/packer-utils/templates/managed.json"
+	],
+	"rocky-9-gui": [
+		"/etc/packer-utils/templates/managed.json"
+	],
+	"ubuntu-focal-20.04-gui": [
+		"/etc/packer-utils/templates/ubuntu.json"
+	],
+	"ubuntu-focal-20.04-nogui": [
+		"/etc/packer-utils/templates/ubuntu.json"
+	],
+	"ubuntu-jammy-22.04-gui": [
+		"/etc/packer-utils/templates/ubuntu.json"
+	],
+	"ubuntu-jammy-22.04-nogui": [
+		"/etc/packer-utils/templates/ubuntu.json"
+	],
+	"ubuntu-noble-24.04-gui": [
+		"/etc/packer-utils/templates/ubuntu.json"
+	],
+	"ubuntu-noble-24.04-nogui": [
+		"/etc/packer-utils/templates/ubuntu.json"
+	]
 }
