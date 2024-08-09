@@ -49,6 +49,9 @@ try:
     RABBIT_PORT = configparser.getint('global', 'RABBIT_PORT')
     RABBIT_USER = configparser.get('global', 'RABBIT_USER')
     RABBIT_PW = configparser.get('global', 'RABBIT_PW')
+    FLAVOR_NAME = configparser.get('global', 'FLAVOR_NAME')
+    NETWORK_ID = configparser.get('global', 'NETWORK_ID')
+
     success_address = configparser.get('global', 'SUCCESS_ADDRESS')
     failure_address = configparser.get('global', 'FAILURE_ADDRESS')
 except Exception as e:
@@ -242,6 +245,8 @@ def run_packer_subprocess(threadName, image):
         template = template.replace("$METADATA", image_metadata)
         template = template.replace("$NAME", image_display_name)
         template = template.replace("$IMAGE", source_image_ID)
+        template = template.replace("$FLAVOR", FLAVOR_NAME)
+        template = template.replace("$NETWORK", NETWORK_ID)
 
         #"AQ_ARCHETYPE": "$ARCHETYPE",
         #                "AQ_DOMAIN": "$DOMAIN",
