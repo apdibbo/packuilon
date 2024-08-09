@@ -7,7 +7,8 @@ apt-get upgrade -y
 rm -f /etc/sudoers.d/cloud
 
 # run script to update keys now
-/usr/local/sbin/update_keys.sh || { echo "Script /home/ubuntu/update_keys.sh could not be run correctly. Generated from \`update_keys.sh\`." | mail -s "Error during VM authorized_keys update" cloud-support@stfc.ac.uk ; }
+#/usr/local/sbin/update_keys.sh || { echo "Script /home/ubuntu/update_keys.sh could not be run correctly. Generated from \`update_keys.sh\`." | mail -s "Error during VM authorized_keys update" cloud-support@stfc.ac.uk ; }
+/usr/local/sbin/update_keys.sh
 
 pakiti2-client
 userdel wjc16017 -r
