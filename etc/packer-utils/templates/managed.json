@@ -52,7 +52,7 @@
     {
       "type": "shell-local",
       "inline": [
-        "source /etc/packer-utils/admin-auth.sh; rename-old-images.sh $NAME AQ"
+        "source /etc/packer-utils/admin-auth.sh; python /usr/local/bin/rename-old-images.py $NAME"
       ]
     }
   ]
