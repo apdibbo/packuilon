@@ -1,5 +1,47 @@
 {
-    "sl6x-x86_64" : "7eb100a3-680b-4544-99cc-950b8c4f6c74",
-    "sl7x-x86_64" : "0b10e583-9e13-4878-9116-f4002846fa73",
-    "osos_version-archetype" : "this-is-not-valid"
+    "rocky-8-aq": {
+        "name": "rocky-8-aq"
+    },
+    "rocky-8-aqml": {
+        "name": "rocky-8-aqml"
+    },
+    "rocky-8-nogui": {
+        "name": "rocky-8-aq"
+    },
+    "rocky-8-gui": {
+        "name": "rocky-8-aq"
+    },
+    "rocky-8-nogui-sssd": {
+        "name": "rocky-8-aq"
+    },
+    "rocky-8-gui-sssd": {
+        "name": "rocky-8-aq"
+    },
+    "rocky-9-aq": {
+        "name": "rocky-9-aq"
+    },
+    "rocky-9-nogui": {
+        "name": "rocky-9-aq"
+    },
+    "rocky-9-gui": {
+        "name": "rocky-9-aq"
+    },
+    "ubuntu-focal-20.04-gui": {
+        "name": "ubuntu-focal-20.04-gui"
+    },
+    "ubuntu-focal-20.04-nogui": {
+        "name": "ubuntu-focal-20.04-nogui"
+    },
+    "ubuntu-jammy-22.04-gui": {
+        "name": "ubuntu-jammy-22.04-gui"
+    },
+    "ubuntu-jammy-22.04-nogui": {
+        "name": "ubuntu-jammy-22.04-nogui"
+    },
+    "ubuntu-noble-24.04-gui": {
+        "name": "ubuntu-noble-24.04-gui"
+    },
+    "ubuntu-noble-24.04-nogui": {
+        "name": "ubuntu-noble-24.04-nogui"
+    }
 }

@@ -1,8 +1,4 @@
 {
-	"DEFAULT": [
-		"/etc/packer-utils/templates/unmanaged.json",
-		"/etc/packer-utils/templates/managed.json"
-	],
 	"rocky-8-aq": [
 		"/etc/packer-utils/templates/managed.json"
 	],
