@@ -2,46 +2,51 @@
   "builders": [
     {
       "type": "openstack",
-      "ssh_username": "root",
-      "image_name": "$NAME",
-      "source_image": "$IMAGE",
-      "flavor": "$FLAVOR",
-      "networks": [
-        "$NETWORK"
-      ],
-      "instance_metadata": { $METADATA
-      },
+      "ssh_username": "packer",
       "user_data_file": "/etc/packer-utils/cloud-init.txt"
     }
   ],
   "provisioners": [
     {
-      "type": "file",
-      "source": "/etc/packer-utils/templates/update_ccm_managed.sh",
-      "destination": "~/update_ccm_managed.sh"
-    },
-    {
+      "type": "shell-local",
+      "inline": [
+          "cd /tmp",
+          "rm -rf cloud-image-builders",
+          "git clone https://github.com/apdibbo/cloud-image-builders",
+          "cd cloud-image-builders",
+          "git checkout origin/migrate-more-prepvm",
+          "cd os_builders"
+      ]
+  },
+  {
+      "type": "ansible",
+      "user": "packer",
+      "keep_inventory_file": true,
+      "extra_arguments": [
+          "--extra-vars",
+          "provision_this_machine=true"
+      ],
+      "playbook_file": "/tmp/cloud-image-builders/os_builders/prepare_user_image.yml"
+  },
+  {
       "type": "shell",
       "expect_disconnect": true,
       "pause_after": "180s",
       "inline": [
-        "sudo bash ~/update_ccm_managed.sh"
+          "sudo reboot"
       ]
-    },
-    {
-      "type": "file",
+  },
+  {
+      "type": "ansible",
+      "user": "packer",
       "max_retries": 10,
-      "source": "/etc/packer-utils/templates/managed_post_reboot.sh",
-      "destination": "~/umanaged_post_reboot.sh"
-    },
-    {
-      "type": "shell",
-      "start_retry_timeout": "120s",
-      "max_retries": 10,
-      "inline": [
-        "sudo bash ~/umanaged_post_reboot.sh"
-      ]
-    }
+      "keep_inventory_file": true,
+      "extra_arguments": [
+          "--extra-vars",
+          "provision_this_machine=true"
+      ],
+      "playbook_file": "/tmp/cloud-image-builders/os_builders/prepare_user_image_post_reboot.yml"
+  }
   ],
   "post-processors": [
     {

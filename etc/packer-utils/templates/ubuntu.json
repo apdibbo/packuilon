@@ -3,27 +3,29 @@
         {
             "type": "openstack",
             "ssh_username": "packer",
-            "image_name": "$NAME",
-            "source_image": "$IMAGE",
-            "flavor": "$FLAVOR",
-            "networks": [
-                "$NETWORK"
-            ],
-            "instance_metadata": { $METADATA
-            },
             "user_data_file": "/etc/packer-utils/cloud-init.txt"
         }
     ],
     "provisioners": [
         {
             "type": "shell-local",
-            "inline": ["cd /tmp", "rm -rf cloud-image-builders", "git clone https://github.com/apdibbo/cloud-image-builders", "cd cloud-image-builders", "git checkout ubuntu-build-tweaks", "cd os_builders"]
+            "inline": [
+                "cd /tmp",
+                "rm -rf cloud-image-builders",
+                "git clone https://github.com/apdibbo/cloud-image-builders",
+                "cd cloud-image-builders",
+                "git checkout origin/migrate-more-prepvm",
+                "cd os_builders"
+            ]
         },
         {
             "type": "ansible",
-            "user": "ubuntu",
+            "user": "packer",
             "keep_inventory_file": true,
-            "extra_arguments": [ "--extra-vars", "provision_this_machine=true"],
+            "extra_arguments": [
+                "--extra-vars",
+                "provision_this_machine=true"
+            ],
             "playbook_file": "/tmp/cloud-image-builders/os_builders/prepare_user_image.yml"
         },
         {
@@ -35,23 +37,16 @@
             ]
         },
         {
-            "type": "file",
+            "type": "ansible",
+            "user": "packer",
             "max_retries": 10,
-            "source": "/etc/packer-utils/templates/ubuntu_post_reboot.sh",
-            "destination": "~/ubuntu_post_reboot.sh"
-        },
-        {
-            "type": "file",
-            "source": "/etc/packer-utils/templates/ubuntu-prepvm.sh",
-            "destination": "~/ubuntu-prepvm.sh"
-        },
-        {
-            "type": "shell",
-            "inline": [
-                "sudo bash ~/ubuntu_post_reboot.sh"
-            ]
+            "keep_inventory_file": true,
+            "extra_arguments": [
+                "--extra-vars",
+                "provision_this_machine=true"
+            ],
+            "playbook_file": "/tmp/cloud-image-builders/os_builders/prepare_user_image_post_reboot.yml"
         }
-
     ],
     "post-processors": [
         {
