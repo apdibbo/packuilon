@@ -81,6 +81,7 @@ for template in TEMPLATES:
         IMAGES[template]["ID"] = imagedata.id
         previousimagedata = conn.image.find_image(template, ignore_missing=False)
         properties = previousimagedata.properties
+        print(properties)
         KNOWN_KEYS = ["AQ", "os_", "aq", "hw_"]
         properties = {k: v for k,v in properties.items() for kk in KNOWN_KEYS if kk in k}
         IMAGES[template]["properties"] = properties
@@ -107,6 +108,7 @@ for template_name in TEMPLATES:
     template["builders"][0]["source_image"] = IMAGES[template_name]["ID"]
     template["builders"][0]["flavor"] = FLAVOR_NAME
     template["builders"][0]["networks"] = [ NETWORK_ID ]
+    template = json.loads(json.dumps(template).replace("$NAME", "Next-" + template_name))
 
     build_file_path=BUILD_FILE_DIR + '/' + template_name + ".json"
     log_file_path=LOG_DIR + '/' + template_name + ".log"
