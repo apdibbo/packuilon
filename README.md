@@ -71,7 +71,7 @@ The Packer build process is logged in separate log for each build, found in the 
 
 ## Rally Integration
 
-A new feature added to Packuilon is to make use of OpenStack Rally to test the images that Packer produces. As of writing, this all works and the test executed is a simple boot up and delete of a couple of VMs using the image just produced. With a little more time, a more complex test should be written, making use of a Rally plugin called `VMTasks.boot_runcommand_delete`. This allows Rally to inject a script into the VM in question. This would be useful as this script could contain tests which are currently done manually, but can quite easily be automated. For anyone looking to do this, plans of Bash commands to test images have been given to Alex. 
+A new feature added to Packuilon is to make use of OpenStack Rally to test the images that Packer produces. As of writing, this all works and the test executed is a simple boot up and delete of a couple of VMs using the image just produced. With a little more time, a more complex test should be written, making use of a Rally plugin called `VMTasks.boot_runcommand_delete`. This allows Rally to inject a script into the VM in question. This would be useful as this script could contain tests which are currently done manually, but can quite easily be automated. For anyone looking to do this, plans of Bash commands to test images have been given to Alex.
 
 All this Rally work is contained in `etc/packer-utils/image-testing-rally`. There's a mixture of Python files and Bash scripts. The Bash scripts are used to start a Rally task and get the results (put into a json file) from the task. This json is put into Python and is used to make decisions regarding the quality of the image. The final yes/no decision of the image is logged using syslog. `rally_task_analysis.py` kicks off the Bash scripts using Subprocess.
 
@@ -113,12 +113,32 @@ How do you actually 'run' Packuilon? Every time a UDP packet is received from `c
 
 The above steps get the scripts within Packuilon installed but further configuration will be needed to get it working for specific images. First of all, look in `config.ini` and insert the details to a RabbitMQ host (hostname, port, username and password are needed here). Under the cdb2rabbit section, ensure the `PROFILE_INFO_URL` is correct. Everything in the rabbit2packer section should be good to start with.
 
-To configure a new type of image requires some configuration too (found it `/etc/packer-utils`). As an example, let's take a Centos 7 image using the `nubesvms` personality (for SCD users, this is an AQ managed personality). As mentioned above for `source-images.json`, insert the key (`centos7x-x86_64` for example), and insert the corresponding value of a Centos 7 image UUID from OpenStack.
+To configure a new type of image requires some configuration too (found it `/etc/packer-utils`). As an example, let's take a Centos 7 image using the `nubesvms` personality (for SCD users, this is an AQ managed personality). As mentioned above for `source-images.json`, insert the name of the new image as the key (`centos-12-nogui` for example), and insert the corresponding value of a Centos 7 image name from OpenStack (`centos-12-aq` for example).
 
 Next is `template-map.json`. Appending the file using a line in the format as below will suffice. One template file could be used for each image and personality combination or just one file per personality:
 
 ```json
-"nubesvms-centos7x-x86_64": ["/etc/packer-utils/templates/nubesvms-centos7.json"]
+"centos-12-aq": ["/etc/packer-utils/templates/managed.json"]
 ```
 
-From the value used in `template-map.json`, create a file of the same name in the relevant directory. This file should be a version of (un)managed.json, whichever is relevant (i.e. is the personality for a managed or an unmanaged image?). This file is essentially a Packer build file with some blanks, that are filled in during rabbit2packer. At this point, it's a good idea to restart the `rabbit2packer` systemctl service, just to make sure all updates to these files are seen. Any errors should appear in the logs so it's probably best to run Packuilon and see what comes from the logs and fix accordingly. The most probable things to be wrong are incorrect paths to files and UUIDs for OpenStack (networks and images). You can see the actual Packer build files (the ones without the blanks) in `/etc/packer-utils/build` once a build has been completed.
+Run the `packuilon-update-builds.py` to generate the appropriate build files
+
+# Running builds manually
+
+You can run builds manually as you normally would by first sourcing the OpenStack credentials to use and then running packer e.g.
+
+```
+source /etc/packer-utils/packer-auth.sh
+/usr/bin/packer build  /etc/packer-utils/build/centos-12-aq.json
+```
+# Debugging builds
+
+If a build is having an issue you can run packer in debug mode by adding `--debug` to the command i.e.
+
+```
+/usr/bin/packer build --debug /etc/packer-utils/build/centos-12-aq.json
+```
+
+Adding it after the path of the build template can cause issues
+
+This will then allow you to step through each stage of the build and ssh into the VM to find any issues.
