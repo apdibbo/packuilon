@@ -6,7 +6,7 @@ from syslog import syslog, LOG_ERR, LOG_INFO
 from configparser import SafeConfigParser
 from subprocess import Popen, PIPE
 from datetime import datetime
-import subprocess  
+import subprocess
 import threading
 import time
 import json
@@ -49,6 +49,9 @@ try:
     RABBIT_PORT = configparser.getint('global', 'RABBIT_PORT')
     RABBIT_USER = configparser.get('global', 'RABBIT_USER')
     RABBIT_PW = configparser.get('global', 'RABBIT_PW')
+    FLAVOR_NAME = configparser.get('global', 'FLAVOR_NAME')
+    NETWORK_ID = configparser.get('global', 'NETWORK_ID')
+
     success_address = configparser.get('global', 'SUCCESS_ADDRESS')
     failure_address = configparser.get('global', 'FAILURE_ADDRESS')
 except Exception as e:
@@ -65,12 +68,12 @@ except Exception as e:
 #    print("SMTP TLS Started")
 #    smtp.login(SMTP_USER, SMTP_PASSWORD)
 #    print("SMTP Login Succeeded")
-#    
+#
 #except:
 #    syslog(LOG_ERR, "Failed to connect to SMTP server")
 def load_templates_images():
     try:
-        with open(IMAGES_CONFIG) as images_JSON:    
+        with open(IMAGES_CONFIG) as images_JSON:
             IMAGES = json.load(images_JSON)
     except IOError as e:
         syslog(LOG_ERR, repr(e))
@@ -82,7 +85,7 @@ def load_templates_images():
         sys.exit(1)
 
     try:
-        with open(PACKER_TEMPLATE_MAP) as template_map_JSON:    
+        with open(PACKER_TEMPLATE_MAP) as template_map_JSON:
             TEMPLATE_MAP = json.load(template_map_JSON)
     except IOError as e:
         syslog(LOG_ERR, repr(e))
@@ -152,7 +155,7 @@ class workerThread (threading.Thread):
 
         channel = connection.channel()
         channel.queue_declare(
-            queue=QUEUE, 
+            queue=QUEUE,
             durable=True
         )
 
@@ -199,7 +202,7 @@ def worker_loop(threadName, channel):
                 continue
             syslog(LOG_ERR, "%s processing %s" % (threadName, image.name()))
             run_packer_subprocess(threadName, image)
-            
+
         time.sleep(2)
 
 
@@ -208,7 +211,7 @@ def run_packer_subprocess(threadName, image):
     image_name=image.name()
     image_display_name=image.prettyName()
     image_metadata=image.metadata()
-        
+
     try:
         source_image_ID = image.imageID
     except KeyError as e:
@@ -218,11 +221,11 @@ def run_packer_subprocess(threadName, image):
 
     templates = TEMPLATE_MAP.get(image_name)
 
-    if templates is None:        
+    if templates is None:
         templates = TEMPLATE_MAP.get("DEFAULT")
         syslog(LOG_INFO, "No Packer template defined for " + image_name + ". Using the default values")
 
-    if templates is None:        
+    if templates is None:
         syslog(LOG_INFO, "No Packer template defined for Default values. No builds will occur.")
 
     for template in templates:
@@ -242,6 +245,8 @@ def run_packer_subprocess(threadName, image):
         template = template.replace("$METADATA", image_metadata)
         template = template.replace("$NAME", image_display_name)
         template = template.replace("$IMAGE", source_image_ID)
+        template = template.replace("$FLAVOR", FLAVOR_NAME)
+        template = template.replace("$NETWORK", NETWORK_ID)
 
         #"AQ_ARCHETYPE": "$ARCHETYPE",
         #                "AQ_DOMAIN": "$DOMAIN",
@@ -262,7 +267,7 @@ def run_packer_subprocess(threadName, image):
                 buildFile.write(template)
         except IOError as e:
             syslog(LOG_ERR, "Unable to write build file: %s" %  build_file_path )
-            syslog(LOG_ERR, repr(e))        
+            syslog(LOG_ERR, repr(e))
             sys.exit(1)
 
         try:
@@ -271,13 +276,13 @@ def run_packer_subprocess(threadName, image):
             syslog(LOG_ERR, "Unable to write to build log file: %s" %  log_file_path )
             syslog(LOG_ERR, repr(e))
             sys.exit(1)
-        
+
         packerCmd = ( "source {packer_auth};"
                       "export OS_TENANT_ID=$OS_PROJECT_ID;"
-                      "export OS_DOMAIN_NAME=$OS_USER_DOMAIN_NAME;"  
+                      "export OS_DOMAIN_NAME=$OS_USER_DOMAIN_NAME;"
                       "{packer_path} build {build_file}"
                     ).format(
-                        packer_auth=PACKER_AUTH_FILE, 
+                        packer_auth=PACKER_AUTH_FILE,
                         build_file=build_file_path,
                         packer_path=PACKER_PATH
                     )
@@ -305,10 +310,3 @@ for i in range(THREAD_COUNT):
 
 while True:
     time.sleep(5)
-
-
-
-
-
-
-

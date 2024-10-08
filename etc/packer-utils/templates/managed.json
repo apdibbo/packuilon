@@ -1,35 +1,47 @@
 {
-  "builders":
-  [
+  "builders": [
     {
       "type": "openstack",
-      "ssh_username": "root",
-      "image_name": "$NAME AQ",
-      "source_image": "$IMAGE",
-      "flavor": "m1.tiny",
-      "networks": [ "2b67533c-8c30-4e07-a6c4-ddde7250eb3d" ],
-      "instance_metadata": { $METADATA },
+      "ssh_username": "packer",
       "user_data_file": "/etc/packer-utils/cloud-init.txt"
-        
-    } 
-  ],
-  "provisioners":
-  [
-    {
-      "type": "file",
-      "source": "/etc/packer-utils/templates/update_ccm_conf.sh",
-      "destination": "/root/update_ccm_conf.sh"
-    },
-    {
-      "type": "shell",
-      "inline": ["bash /root/update_ccm_conf.sh" ]
     }
   ],
-  "post-processors":
-  [
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+          "sudo yum install ansible -y",
+          "ls /usr/lib/stfc-cloud || sudo mkdir /usr/lib/stfc-cloud",
+          "cd /usr/lib/stfc-cloud",
+          "sudo rm -rf cloud-image-builders",
+          "sudo git clone https://github.com/stfc/cloud-image-builders",
+          "cd cloud-image-builders",
+          "sudo ansible-playbook os_builders/prepare_user_image.yml --extra-vars provision_this_machine=true -i os_builders/inventory/localhost.yml"
+      ]
+  },
+  {
+      "type": "shell",
+      "expect_disconnect": true,
+      "pause_after": "180s",
+      "inline": [
+          "sudo reboot"
+      ]
+  },
+  {
+    "type": "shell",
+    "max_retries": 10,
+    "inline": [
+        "cd /usr/lib/stfc-cloud/cloud-image-builders",
+        "sudo ansible-playbook os_builders/prepare_user_image_post_reboot.yml --extra-vars provision_this_machine=true -i os_builders/inventory/localhost.yml"
+    ]
+}
+  ],
+  "post-processors": [
     {
       "type": "shell-local",
-      "inline": ["source /etc/packer-utils/admin-auth.sh; rename-old-images.sh $NAME AQ"]
+      "inline": [
+        "source /etc/packer-utils/admin-auth.sh; python /usr/local/bin/rename-old-images.py $NAME"
+      ]
     }
   ]
 }
