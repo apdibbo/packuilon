@@ -123,7 +123,7 @@ if testPassed:
     else:
         print("Previous version not found")
 
-    conn.image.update_image(next_image, visibility=existing_visibility, **properties)
+    conn.image.update_image(next_image.id, visibility=existing_visibility, **properties)
 
     if existing_visibility == "shared" and previous_image:
         existing_members = conn.image.members(previous_image)
@@ -138,9 +138,9 @@ if testPassed:
     if previous_image:
         conn.image.deactivate_image(previous_image)
         print("Rename " + previous_image.name + " to " + "warehoused-" + previous_image.name + "-" + DATE)
-        conn.image.update_image(previous_image, name="warehoused-" + previous_image.name + "-" + DATE, is_hidden=True)
+        conn.image.update_image(previous_image.id, name="warehoused-" + previous_image.name + "-" + DATE, is_hidden=True)
         print("Rename " + next_image.name + " to " + current_image_name)
-        conn.image.update_image(next_image, name=current_image_name)
+        conn.image.update_image(next_image.id, name=current_image_name)
 
     # print(images)
 
@@ -173,4 +173,4 @@ else:
 #    SendMail("Build Failed", body, failure_address)
     visibility = " --private "
 
-    conn.image.update_image(next_image, visibility=visibility, name="Broken-" + current_image_name + DATE)
+    conn.image.update_image(next_image.id, visibility=visibility, name="Broken-" + current_image_name + DATE)
