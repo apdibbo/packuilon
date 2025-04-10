@@ -11,13 +11,13 @@
             "type": "shell",
             "inline": [
                 "sudo apt-get update",
-                "sudo apt-get install ansible -y",
+                "sudo apt-get install ansible git -y",
                 "ls /usr/lib/stfc-cloud || sudo mkdir /usr/lib/stfc-cloud",
                 "cd /usr/lib/stfc-cloud",
                 "sudo rm -rf cloud-image-builders",
                 "sudo git clone https://github.com/stfc/cloud-image-builders",
                 "cd cloud-image-builders",
-                "sudo ansible-playbook os_builders/prepare_user_image.yml --extra-vars provision_this_machine=true -i os_builders/inventory/localhost.yml"
+                "sudo ansible-playbook os_builders/playbooks/prepare_user_image.yml --extra-vars provision_this_machine=true -i os_builders/inventory/localhost.yml"
             ]
         },
         {
@@ -33,7 +33,7 @@
             "max_retries": 10,
             "inline": [
                 "cd /usr/lib/stfc-cloud/cloud-image-builders",
-                "sudo ansible-playbook os_builders/prepare_user_image_post_reboot.yml --extra-vars provision_this_machine=true -i os_builders/inventory/localhost.yml"
+                "sudo ansible-playbook os_builders/playbooks/prepare_user_image_post_reboot.yml --extra-vars provision_this_machine=true -i os_builders/inventory/localhost.yml"
             ]
         }
     ],
